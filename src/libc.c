@@ -1,10 +1,8 @@
 #include "../include/kc.h"
 
-
-int tickpos = 0;
 unsigned char kbdus[128] =
 {
-    0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
+    0,  27, '1', '2', '#', '4', '5', '6', '7', '8',	/* 9 */
   '9', '0', '-', '=', '\b',	/* Backspace */
   '\t',			/* Tab */
   'q', 'w', 'e', 'r',	/* 19 */
@@ -88,9 +86,8 @@ void setup_IDT_entry (DESCR_INT *item, byte selector, dword offset, byte access,
 *Recibe: String
 ****************************************************************/
 
-void print (char* string){
+/*void print (char* string){
     int counter = 0;
-    char *video = (char *) 0xb8000;	
 
     while (string[counter] != '\0'){
     	
@@ -123,11 +120,11 @@ void printInt (int num){
     printChar('0'+ (num % 10));
 
 }
-
+*/
 /***************************************************************
 *Imprime el teclado
 ****************************************************************/
-
+/*
 char getKey(int scancode) {
 	return kbdus[scancode];
 }
@@ -136,17 +133,10 @@ char getKey(int scancode) {
 void backspace() {
 	print(" ");
 	tickpos -= 4;
+}*/
+
+char * screenPosition() {
+		int static tickpos = 0;
+		char *video = (char *) 0xb8000;
+	    return video + (tickpos+=2)*sizeof(char*);
 }
-
-
-void int_09(int scancode) {
-    if(scancode == 14) {
-	backspace();
-    }
-
-    if(scancode <= 128 && scancode != 14) {
-	    char *video = (char *) 0xb8000;
-	    video[tickpos+=2] = getKey(scancode);
-    }
-}
-
