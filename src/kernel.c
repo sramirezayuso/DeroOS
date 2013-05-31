@@ -1,5 +1,6 @@
 #include "../include/kasm.h"
 #include "../include/defs.h"
+#include "../include/kernel.h"
 
 DESCR_INT idt[0xA];			/* IDT de 10 entradas*/
 IDTR idtr;				/* IDTR */
@@ -11,6 +12,69 @@ void int_08() {
     //char *video = (char *) 0xb8000;
     //video[tickpos+=2]='!';
 
+
+}
+
+
+void int_09(int scancode) {
+    /*if(scancode == 14) {
+	backspace();
+    }
+
+    if(scancode <= 128 && scancode != 14) {
+	    char *video = (char *) 0xb8000;
+	    video[tickpos+=2] = getKey(scancode);
+    }*/
+	
+	/*char * test = "Esto es una prueba";
+	__write(1, (void *) test, 4);*/
+	_writeScreen('a', 0xb8000);
+}
+
+size_t __write(int fd, const void* buffer, size_t count) {
+
+	size_t cantW = 0;
+
+	if(count < 0)
+		return -1;
+
+	switch(fd) {
+	
+		case 1:
+				while(count) {
+					_writeScreen('a', 0xb8000);
+					count--;
+					cantW++;
+				}
+					
+				return cantW;
+		default:
+				return -1;
+	}
+}
+
+
+
+size_t __read(int fd, void* buffer, size_t count) {
+
+	size_t cantR = 0;
+
+	if(count < 0)
+		return -1;
+
+	switch(fd) {
+	
+		case 1:
+				while(count) {
+					_read(buffer + count, screenPosition());
+					count--;
+					cantR++;
+				}
+				
+				return cantR;
+		default:
+				return -1;
+	}
 
 }
 
@@ -32,7 +96,7 @@ kmain()
 
 /* CARGA DE IDT CON LA RUTINA DE ATENCION DE IRQ0    */
 
-        setup_IDT_entry (&idt[0x08], 0x08, (dword)&_int_08_hand, ACS_INT, 0);
+    setup_IDT_entry (&idt[0x08], 0x08, (dword)&_int_08_hand, ACS_INT, 0);
 	setup_IDT_entry (&idt[0x09], 0x08, (dword)&_int_09_hand, ACS_INT, 0);
 	
 /* Carga de IDTR    */
