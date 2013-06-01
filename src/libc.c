@@ -80,63 +80,17 @@ void setup_IDT_entry (DESCR_INT *item, byte selector, dword offset, byte access,
 }
 
 /***************************************************************
-*print
-* Imprime por pantalla un string
-*
-*Recibe: String
-****************************************************************/
-
-/*void print (char* string){
-    int counter = 0;
-
-    while (string[counter] != '\0'){
-    	
-    	video[tickpos]=string[counter];
-    	tickpos += 2;
-    	counter++;
-
-    }
-   
-}
-
-void printChar(char c) {
-    char *video = (char *) 0xb8000;
-    video[tickpos+=2] = c;
-	
-}
-
-void printInt (int num){
-    if(num < 0) {
-	printChar('-');
-	num = num * -1;
-    }
-
-    if(num < 10) {
-	printChar('0'+ num);
-	return;
-    }
-
-    printInt(num/10);
-    printChar('0'+ (num % 10));
-
-}
-*/
-/***************************************************************
 *Imprime el teclado
 ****************************************************************/
-/*
+
 char getKey(int scancode) {
 	return kbdus[scancode];
 }
 
-
-void backspace() {
-	print(" ");
-	tickpos -= 4;
-}*/
-
-char * screenPosition() {
+char * screenPosition(int advance) {
 		int static tickpos = 0;
-		char *video = (char *) 0xb8000;
-	    return video + (tickpos+=2)*sizeof(char*);
+		char * video = (char *) 0xb8000;
+	    char * ret = video + tickpos;
+		tickpos += advance;
+		return ret;
 }
