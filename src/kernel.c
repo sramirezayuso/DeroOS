@@ -1,6 +1,7 @@
 #include "../include/kasm.h"
 #include "../include/defs.h"
 #include "../include/kernel.h"
+#include "../include/stdio.h"
 
 DESCR_INT idt[0xA];			/* IDT de 10 entradas*/
 IDTR idtr;				/* IDTR */
@@ -17,24 +18,17 @@ void int_08() {
 
 
 void int_09(int scancode) {
-    /*if(scancode == 14) {
-	backspace();
-    }
 
-    if(scancode <= 128 && scancode != 14) {
-	    char *video = (char *) 0xb8000;
-	    video[tickpos+=2] = getKey(scancode);
-    }*/
-	
-	/*char * test = "Esto es una prueba";
-	__write(1, (void *) test, 4);*/
-	_writeScreen('a', 0xb8000);
+	if(scancode <= 128) {
+		putchar( (int) getKey(scancode));
+	}
 }
 
 size_t __write(int fd, const void* buffer, size_t count) {
 
 	size_t cantW = 0;
-
+	char * b = (char *) buffer;
+	
 	if(count < 0)
 		return -1;
 
@@ -42,11 +36,11 @@ size_t __write(int fd, const void* buffer, size_t count) {
 	
 		case 1:
 				while(count) {
-					_writeScreen('a', 0xb8000);
+					_writeScreen(b[cantW], screenPosition(2));
 					count--;
 					cantW++;
 				}
-					
+				
 				return cantW;
 		default:
 				return -1;
