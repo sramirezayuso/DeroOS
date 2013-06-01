@@ -100,13 +100,14 @@ _writeScreen:
 		ret
 
 _read:
-        push	ebp
-        mov		ebp, esp
-
-		
-		mov 	esp,ebp
-		pop 	ebp   
-		ret
+	push	ebp
+	mov	ebp, esp
+	mov ebx, [ebp+8]
+	mov eax, 0
+	mov al, [ebx]
+	mov 	esp,ebp
+	pop 	ebp   
+	ret
 
 ; Debug para el BOCHS, detiene la ejecución; Para continuar colocar en el BOCHSDBG: set $eax=0
 ;
