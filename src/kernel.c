@@ -17,13 +17,7 @@ void int_08() {
 }
 
 
-void int_09(int scancode) {
-    if (scancode == 2){
-        int temp[10];
-        __read(1, (void*) temp, 1);
-        putchar(temp[0]);
-    }
-	
+void int_09(int scancode) {	
     if(scancode <= 128) {
 		putchar( (int) getKey(scancode));
     }
