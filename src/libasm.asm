@@ -92,8 +92,8 @@ _int_09_hand:				; Handler de INT 9 ( Keyboard )
 _writeScreen:
         push	ebp
         mov		ebp, esp
-		pop 	eax			;Byte a escribir
-		pop		ebx			;Direccion de la pantalla
+		mov 	al, [ebp+8]		;Byte a escribir
+		mov 	ebx, [ebp+12]	;Direccion de la pantalla
 		mov		[ebx], al
 		mov 	esp,ebp
 		pop 	ebp   
