@@ -2,11 +2,10 @@
 #include "../include/defs.h"
 #include "../include/kernel.h"
 #include "../include/stdio.h"
+#include "../include/globals.h"
 
 DESCR_INT idt[0xA];                     /* IDT de 10 entradas*/
 IDTR idtr;                              /* IDTR */
-
-
 
 void int_08() {
 
@@ -17,9 +16,20 @@ void int_08() {
 }
 
 
-void int_09(int scancode) {	
+void int_09(int scancode) {
     if(scancode <= 128) {
-		putchar( (int) getKey(scancode));
+        screen[curLine][currCol] = getKey(scancode);
+        flush();
+        curCol++;
+        if(curCol > 79){
+            curLine++;
+            curCol = 0;
+            if(curLine > 24){
+                curLine = 0;
+                k_clear_screen();
+            }
+        }
+		//putchar( (int) getKey(scancode));
     }
 }
 
@@ -91,7 +101,7 @@ void kmain()
 
 /* CARGA DE IDT CON LA RUTINA DE ATENCION DE IRQ0    */
 
-    setup_IDT_entry (&idt[0x08], 0x08, (dword)&_int_08_hand, ACS_INT, 0);
+        setup_IDT_entry (&idt[0x08], 0x08, (dword)&_int_08_hand, ACS_INT, 0);
         setup_IDT_entry (&idt[0x09], 0x08, (dword)&_int_09_hand, ACS_INT, 0);
 
 /* Carga de IDTR    */

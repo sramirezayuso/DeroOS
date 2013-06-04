@@ -1,4 +1,5 @@
 #include "../include/kc.h"
+#include "../include/globals.h"
 
 unsigned char kbdus[128] =
 {
@@ -40,23 +41,26 @@ unsigned char kbdus[128] =
     0,	/* All other keys are undefined */
 };
 
+void flush()
+{
+    for(int i = 0; i < 25; i++){
+       __write(1, screen[i], size_t 80);
+    }
+}
+
 /***************************************************************
 *k_clear_screen
 *
 * Borra la pantalla en modo texto color.
 ****************************************************************/
 
-void k_clear_screen() 
+void k_clear_screen()
 {
-	char *vidmem = (char *) 0xb8000;
-	unsigned int i=0;
-	while(i < (80*25*2))
-	{
-		vidmem[i]=' ';
-		i++;
-		vidmem[i]=WHITE_TXT;
-		i++;
-	};
+    for(int i = 0; i < 25; i++){
+        for(int j = 0; j < 80; j++){
+            screen[i][j] = ' ';
+        }
+    }
 }
 
 /***************************************************************
@@ -65,7 +69,7 @@ void k_clear_screen()
 *
 *Recibe: Puntero a elemento de la IDT
 *	 Selector a cargar en el descriptor de interrupcion
-*	 Puntero a rutina de atencion de interrupcion	
+*	 Puntero a rutina de atencion de interrupcion
 *	 Derechos de acceso del segmento
 *	 Cero
 ****************************************************************/
