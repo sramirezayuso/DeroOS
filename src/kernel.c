@@ -18,7 +18,7 @@ void int_09(int scancode) {
 
     if(scancode <= 128) {
         screen[curLine][curCol] = getKey(scancode);
-        flush();
+        flush(screen);
         curCol++;
         if(curCol > 79){
             curLine++;
@@ -34,7 +34,7 @@ void int_09(int scancode) {
 size_t __write(int fd, const void* buffer, size_t count) {
 
         size_t cantW = 0;
-        char * b = (unsigned char *) buffer;
+        unsigned char * b = (unsigned char *) buffer;
         if(count < 0)
                 return -1;
 
@@ -91,7 +91,7 @@ void kmain()
 
 /* Borra la pantalla. */
 
-        k_clear_screen();
+       k_clear_screen();
 
 
 /* CARGA DE IDT CON LA RUTINA DE ATENCION DE IRQ0    */

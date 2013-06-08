@@ -42,14 +42,11 @@ unsigned char kbdus[128] =
     0,	/* All other keys are undefined */
 };
 
-void flush()
+void flush(unsigned char ** s)
 {
-	int i;
-
 	tickpos = 0;
-    for(i = 0; i < 25; i++){
-       __write(STDOUT, &(screen[i]), 80);
-    }
+        __write(STDOUT, s, 2000);
+
 }
 
 /***************************************************************
@@ -68,7 +65,7 @@ void k_clear_screen()
         }
     }
 
-	flush();
+	flush(screen);
 }
 
 /***************************************************************
