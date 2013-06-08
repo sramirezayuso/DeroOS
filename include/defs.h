@@ -56,7 +56,7 @@ typedef struct {
   dword base;
 } IDTR;
 
-static unsigned char screen[25][80]; /* screen[filas][columnas]*/
+unsigned char screen[25][80]; /* screen[filas][columnas]*/
 static int curLine = 0;
 static int curCol = 0;
 static int tickpos = 0;

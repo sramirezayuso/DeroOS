@@ -18,7 +18,7 @@ void int_09(int scancode) {
 
     if(scancode <= 128) {
         screen[curLine][curCol] = getKey(scancode);
-        flush(screen);
+        flush();
         curCol++;
         if(curCol > 79){
             curLine++;
