@@ -46,9 +46,9 @@ void flush()
 {
 	int i;
 
-	tickpos = 0;	
+	tickpos = 0;
     for(i = 0; i < 25; i++){
-       __write(STDOUT, screen[i], 80);
+       __write(STDOUT, &(screen[i]), 80);
     }
 }
 
@@ -61,7 +61,7 @@ void flush()
 void k_clear_screen()
 {
 	int i, j;
-	
+
     for(i = 0; i < 25; i++){
         for(j = 0; j < 80; j++){
             screen[i][j] = ' ';

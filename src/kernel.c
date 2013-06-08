@@ -12,14 +12,9 @@ void int_08() {
     //char *video = (char *) 0xb8000;
     //video[tickpos+=2]='!';
 
-
 }
 
 void int_09(int scancode) {
-
-	tickpos = 0;
-	char c = '2';
-	__write(STDOUT, &c, 1);
 
     if(scancode <= 128) {
         screen[curLine][curCol] = getKey(scancode);
@@ -39,7 +34,7 @@ void int_09(int scancode) {
 size_t __write(int fd, const void* buffer, size_t count) {
 
         size_t cantW = 0;
-        unsigned char * b = (unsigned char *) buffer;
+        char * b = (unsigned char *) buffer;
         if(count < 0)
                 return -1;
 
