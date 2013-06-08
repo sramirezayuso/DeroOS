@@ -1,5 +1,6 @@
 #include "../include/kc.h"
-#include "../include/globals.h"
+#include "../include/defs.h"
+#include "../include/kernel.h"
 
 unsigned char kbdus[128] =
 {
@@ -43,8 +44,11 @@ unsigned char kbdus[128] =
 
 void flush()
 {
-    for(int i = 0; i < 25; i++){
-       __write(1, screen[i], size_t 80);
+	int i;
+
+	tickpos = 0;	
+    for(i = 0; i < 25; i++){
+       __write(STDOUT, screen[i], 80);
     }
 }
 
@@ -56,11 +60,15 @@ void flush()
 
 void k_clear_screen()
 {
-    for(int i = 0; i < 25; i++){
-        for(int j = 0; j < 80; j++){
+	int i, j;
+	
+    for(i = 0; i < 25; i++){
+        for(j = 0; j < 80; j++){
             screen[i][j] = ' ';
         }
     }
+
+	flush();
 }
 
 /***************************************************************
@@ -92,7 +100,6 @@ char getKey(int scancode) {
 }
 
 char * screenPosition(int advance) {
-		int static tickpos = 0;
 		char * video = (char *) 0xb8000;
 	    char * ret = video + tickpos;
 		tickpos += advance;

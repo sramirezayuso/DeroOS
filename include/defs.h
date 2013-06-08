@@ -25,6 +25,9 @@
 #define ACS_DATA        (ACS_PRESENT | ACS_DSEG | ACS_WRITE)
 #define ACS_STACK       (ACS_PRESENT | ACS_DSEG | ACS_WRITE)
 
+#define STDIN			0
+#define STDOUT			1
+
 #pragma pack (1) 		/* Alinear las siguiente estructuras a 1 byte */
 
 /* Descriptor de segmento */
@@ -53,7 +56,10 @@ typedef struct {
   dword base;
 } IDTR;
 
-     
+static unsigned char screen[25][80]; /* screen[filas][columnas]*/
+static int curLine = 0;
+static int curCol = 0;
+static int tickpos = 0;
 
 #endif
 

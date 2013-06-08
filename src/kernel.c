@@ -2,7 +2,7 @@
 #include "../include/defs.h"
 #include "../include/kernel.h"
 #include "../include/stdio.h"
-#include "../include/globals.h"
+#include "../include/kc.h"
 
 DESCR_INT idt[0xA];                     /* IDT de 10 entradas*/
 IDTR idtr;                              /* IDTR */
@@ -15,10 +15,14 @@ void int_08() {
 
 }
 
-
 void int_09(int scancode) {
+
+	tickpos = 0;
+	char c = '2';
+	__write(STDOUT, &c, 1);
+
     if(scancode <= 128) {
-        screen[curLine][currCol] = getKey(scancode);
+        screen[curLine][curCol] = getKey(scancode);
         flush();
         curCol++;
         if(curCol > 79){
@@ -29,22 +33,20 @@ void int_09(int scancode) {
                 k_clear_screen();
             }
         }
-		//putchar( (int) getKey(scancode));
     }
 }
 
 size_t __write(int fd, const void* buffer, size_t count) {
 
         size_t cantW = 0;
-        char * b = (char *) buffer;
+        unsigned char * b = (unsigned char *) buffer;
         if(count < 0)
                 return -1;
 
         switch(fd) {
-
-                case 1:
+                case STDOUT:
                                 while(count) {
-                                        _writeScreen(b[cantW], screenPosition(2));
+                                        _writeScreen(b[cantW], (unsigned char *) screenPosition(2));
                                         count--;
                                         cantW++;
                                 }
@@ -66,9 +68,9 @@ size_t __read(int fd, void* buffer, size_t count) {
 
         switch(fd) {
 
-        case 1:
+        case STDOUT:
             while(count) {
-                char var = _read(0xb8000);
+                char var = _read((unsigned char * ) 0xb8000);
                 cBuf = buffer;
                 cBuf[cantR] = var;
                 count--;
@@ -91,8 +93,6 @@ Punto de entrada de código C.
 
 void kmain()
 {
-
-        int i, num;
 
 /* Borra la pantalla. */
 

@@ -1,4 +1,5 @@
 #include "../include/stdio.h"
+#include "../include/kernel.h"
 
 /* Imprime un caracter por pantalla */
 void printChar (char c);
@@ -75,7 +76,7 @@ int putchar ( int character ) {
 }
 /* ESTO NO FUNCIONA */
 int getchar ( void ) {
-	char * character;
+	char * character = NULL;
 	return __read(0, (void *) character , 1);
 }
 
