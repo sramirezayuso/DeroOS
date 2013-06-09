@@ -1,6 +1,6 @@
 /***************************************************
   Defs.h
-	
+
 ****************************************************/
 
 #ifndef _defs_
@@ -27,6 +27,12 @@
 
 #define STDIN			0
 #define STDOUT			1
+#define ROWS            25
+#define COLS            80
+#define NULL			0
+
+#define FALSE			0
+#define TRUE			!FALSE
 
 #pragma pack (1) 		/* Alinear las siguiente estructuras a 1 byte */
 
@@ -56,10 +62,11 @@ typedef struct {
   dword base;
 } IDTR;
 
-unsigned char screen[25][80]; /* screen[filas][columnas]*/
+unsigned char screen[ROWS][COLS]; /* screen[filas][columnas]*/
 static int curLine = 0;
 static int curCol = 0;
 static int tickpos = 0;
+int promptLength;
 
 #endif
 

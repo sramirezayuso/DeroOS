@@ -1,6 +1,6 @@
 #include "../include/defs.h"
 
-/********************************** 
+/**********************************
 *
 *  Kernel
 *
@@ -12,7 +12,7 @@
 #define OS_PID	0
 
 int (*player)(void);
-	
+
 typedef int size_t;
 typedef short int ssize_t;
 typedef enum eINT_80 {WRITE=0, READ} tINT_80;

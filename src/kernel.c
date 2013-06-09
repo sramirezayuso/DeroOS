@@ -3,6 +3,7 @@
 #include "../include/kernel.h"
 #include "../include/stdio.h"
 #include "../include/kc.h"
+#include "../include/shell.h"
 
 DESCR_INT idt[0xA];                     /* IDT de 10 entradas*/
 IDTR idtr;                              /* IDTR */
@@ -15,20 +16,7 @@ void int_08() {
 }
 
 void int_09(int scancode) {
-
-    if(scancode <= 128) {
-        screen[curLine][curCol] = getKey(scancode);
-        flush();
-        curCol++;
-        if(curCol > 79){
-            curLine++;
-            curCol = 0;
-            if(curLine > 24){
-                curLine = 0;
-                k_clear_screen();
-            }
-        }
-    }
+    printKey(scancode);
 }
 
 size_t __write(int fd, const void* buffer, size_t count) {
@@ -115,9 +103,10 @@ void kmain()
 
         _Sti();
 
+		initializeShell();
         while(1)
         {
-        //print("Hola");
+			
         }
 
 }

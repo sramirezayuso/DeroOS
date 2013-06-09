@@ -4,6 +4,7 @@ GLOBAL  _int_09_hand
 GLOBAL  _mascaraPIC1,_mascaraPIC2,_Cli,_Sti
 GLOBAL  _debug
 GLOBAL  _writeScreen, _read
+GLOBAL	_outb
 
 EXTERN  int_08
 EXTERN  int_09
@@ -13,13 +14,13 @@ SECTION .text
 
 
 _Cli:
-	cli			; limpia flag de interrupciones
-	ret
+		cli			; limpia flag de interrupciones
+		ret
 
 _Sti:
 
-	sti			; habilita interrupciones por flag
-	ret
+		sti			; habilita interrupciones por flag
+		ret
 
 _mascaraPIC1:			; Escribe mascara del PIC 1
 		push    ebp
@@ -100,14 +101,28 @@ _writeScreen:
 		ret
 
 _read:
-	push	ebp
-	mov	ebp, esp
-	mov ebx, [ebp+8]
-	mov eax, 0
-	mov al, [ebx]
-	mov 	esp,ebp
-	pop 	ebp   
-	ret
+		push	ebp
+		mov	ebp, esp
+		mov ebx, [ebp+8]
+		mov eax, 0
+		mov al, [ebx]
+		mov 	esp,ebp
+		pop 	ebp   
+		ret
+	
+_outb:
+		push    ebp
+		mov     ebp, esp
+		push	eax
+		push	edx
+		mov     eax, [ebp+12]
+		mov     edx, [ebp+8]
+		out     dx, al
+		pop     edx
+		pop     eax
+		mov     esp, ebp
+		pop     ebp
+		ret
 
 ; Debug para el BOCHS, detiene la ejecución; Para continuar colocar en el BOCHSDBG: set $eax=0
 ;

@@ -24,3 +24,4 @@ char		_read(byte * pos);
 
 void		_debug (void);
 
+void		_outb(unsigned char * to, unsigned short from);
