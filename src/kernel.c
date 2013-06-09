@@ -16,7 +16,7 @@ void int_08() {
 }
 
 void int_09(int scancode) {
-    printKey(scancode);
+    decodeScancode(scancode);
 }
 
 size_t __write(int fd, const void* buffer, size_t count) {
