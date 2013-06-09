@@ -3,6 +3,7 @@
 #include "../include/kernel.h"
 #include "../include/kasm.h"
 #include "../include/string.h"
+#include "../include/stdio.h"
 
 unsigned char minKeys[] =
 {  0,  ESC, '1', '2', '3', '4', '5', '6', '7', '8', 
@@ -11,6 +12,18 @@ unsigned char minKeys[] =
  'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
 '\'', '`',   MAY,'\\', 'z', 'x', 'c', 'v', 'b', 'n',
  'm', ',', '.', '/',   MAY, '*',   0, ' ',   CAPS,	0,
+  0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
+  0,   0, 	UP,   0,  '-', LEFT,  0, RIGHT, '+', 0,
+ DOWN,   0,    0,   0,   0,   0,   0,   0,   0, 
+};
+
+unsigned char mayKeys[] =
+{  0,  ESC, '!', '@', '#', '$', '%', '^', '&', '*', 
+ '(', ')', '_', '+','\b','\t', 'Q', 'W', 'E', 'R', 
+ 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}','\n',   0,
+ 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':',
+'"', '~',   MIN,'|', 'Z', 'X', 'C', 'V', 'B', 'N',
+ 'M', '<', '>', '?',   MIN, '*',   0, ' ',   CAPS,	0,
   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
   0,   0, 	UP,   0,  '-', LEFT,  0, RIGHT, '+', 0,
  DOWN,   0,    0,   0,   0,   0,   0,   0,   0, 
@@ -73,55 +86,61 @@ void flush() {
 * Imprime una tecla en pantalla
 ****************************************************************/
 
-void printKey(int scancode) {
+void decodeScancode(int scancode) {
     int i, j;
 	char c;
-	printInt(scancode);
 	
 	if(defineScancode(scancode))
 		return;
 	
-	c = keyboard[scancode];
-	if(c == 0)
-		return;
-	
-    if(scancode <= 80) {
-		moveUp();
+	if(scancode <= 80) {
+		c = keyboard[scancode];
 		
-		switch(c) {
-		
-			case '\n':
-						screen[curLine][curCol] = 0;
-						interpret();
-						curLine++;
-						moveUp();
-						curCol = 0;
-						printPrompt();
-						break;
-			case '\b':
-						if(cursorRange(promptLength+2, COLS-1)) { 
-							screen[curLine][--curCol] = ' ';
-						}
-						curCol--;
-						break;
-			case '\t':
-						for(i = 0; i < 5; i++)
-							screen[curLine][curCol++] = ' ';
-						break;
-			default:
-						if(!cursorRange(promptLength+1, COLS-2))
-							return;
-						screen[curLine][curCol] = c;
-		}
-		
-        flush();
-		update_cursor(curLine, curCol);
-        curCol++;
-        if(curCol > COLS-1){
-            curLine++;
-            curCol = 0;
-        }
+		if(c != 0)
+			printKey(c);
     }
+}
+
+
+void printKey(char c) {
+	int i;
+
+	moveUp();
+		
+	switch(c) {
+	
+		case '\n':
+					screen[curLine][curCol] = 0;
+					interpret();
+					curLine++;
+					moveUp();
+					curCol = 0;
+					printPrompt();
+					break;
+		case '\b':
+					if(cursorRange(promptLength+2, COLS-1)) { 
+						screen[curLine][--curCol] = ' ';
+					}
+					curCol--;
+					break;
+		case '\t':
+					for(i = 0; i < 5; i++)
+						screen[curLine][curCol++] = ' ';
+					break;
+		default:
+					if(!cursorRange(promptLength+1, COLS-2))
+						return;
+					screen[curLine][curCol] = c;
+	}
+	
+	flush();
+	update_cursor(curLine, curCol);
+	curCol++;
+	if(curCol > COLS-1){
+		curLine++;
+		curCol = 0;
+	}
+
 }
 
 /***************************************************************
@@ -187,14 +206,9 @@ int defineScancode(int scancode) {
 				else
 					keyboard = minKeys;
 				return TRUE;
-		case MIN:
-				keyboard = minKeys;
-				return 0;
-		case MAY:
-				keyboard = minKeys;
-				return 0;
 		case ESC:
-				while(curCol > promptLength + 1 ) {
+				curCol = COLS-1;
+				while(cursorRange(promptLength+2, COLS-1)) {
 					screen[curLine][--curCol] = ' ';
 				}
 				flush();

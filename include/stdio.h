@@ -16,13 +16,9 @@ int printf ( const char * format, ... );
 
 int scanf ( const char * format, ... );
 
-int getc ( /*FILE * stream*/ );
+int getc ( );
 
-int putc ( int character/*, FILE * stream */);
-
-int putchar ( int character );
-
-int getchar ( void );
+int putc ( int character );
 
 
 #endif

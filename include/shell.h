@@ -14,8 +14,8 @@
 #define RIGHT		-29
 #define UP			-30
 #define DOWN		-31
-#define MAY			-32
-#define MIN			-33
+#define MAY			0
+#define MIN			0
 #define CAPS		-34
 
 /* Muestra la imagen de inicio */
@@ -34,7 +34,7 @@ void initializeShell();
 void flush();
 
 /* Devuelve el caracter indicado por el scancode */
-void printKey(int scancode);
+void decodeScancode(int scancode);
 
 /* Imprime el prompt del sistema */
 void printPrompt();
@@ -55,5 +55,7 @@ void interpret();
 int defineScancode(int scancode);
 
 int cursorRange(int left, int right);
+
+void printKey(char c);
 
 #endif

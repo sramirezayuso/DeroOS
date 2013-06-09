@@ -1,5 +1,6 @@
 #include "../include/stdio.h"
 #include "../include/kernel.h"
+#include "../include/shell.h"
 
 /* Imprime un caracter por pantalla */
 void printChar (char c);
@@ -27,6 +28,7 @@ int printf ( const char * format, ... ) {
 			i++;
 			switch(format[i]) {
 			
+				case 'i':
 				case 'd':
 						intVal = va_arg(ap);
 						charsPrinted += printInt(*intVal);
@@ -34,7 +36,7 @@ int printf ( const char * format, ... ) {
 				case 'c':
 						charVal = va_arg(ap);
 						charsPrinted++;
-						printChar(*charVal);
+						putc(*charVal);
 						break;				
 				case 's':
 						stringVal = va_arg(ap);
@@ -46,7 +48,7 @@ int printf ( const char * format, ... ) {
 		
 		} else {
 		
-			printChar(format[i]);
+			putc(format[i]);
 			charsPrinted++;
 		
 		}
@@ -59,28 +61,17 @@ int printf ( const char * format, ... ) {
 }
 
 int scanf ( const char * format, ... ) {
-return NULL;
+	return NULL;
 }
 
-int getc ( /*FILE * stream */) {
-return NULL;
+int getc ( ) {
+	return NULL;
 }
 
-int putc ( int character/*, FILE * stream*/ ) {
-return NULL;
-}
-
-int putchar ( int character ) {
-	__write(1, &character, 1);
+int putc ( int character ) {
+	printKey( (char) character);
 	return character;
 }
-/* ESTO NO FUNCIONA */
-int getchar ( void ) {
-	char * character = NULL;
-	return __read(0, (void *) character , 1);
-}
-
-
 
 /***************************************************************
 *print
@@ -88,16 +79,13 @@ int getchar ( void ) {
 *
 *Recibe: String
 ****************************************************************/
-void printChar (char c) {
-	__write(1, &c, 1);	
-}
 
 int print (char* string){
     int counter = 0;
 
     while (string[counter] != '\0'){
     	
-		printChar(string[counter]);
+		putc(string[counter]);
     	counter++;
 
     }
@@ -109,16 +97,16 @@ int printInt (int num){
 	int numLong = 0;
 	
     if(num < 0) {
-	printChar('-');
+	putc('-');
 	num = num * -1;
     }
 
     if(num < 10) {
-	printChar('0'+ num);
+	putc('0'+ num);
 	return 1;
     }
 
     numLong = printInt(num/10);
-    printChar('0'+ (num % 10));
+    putc('0'+ (num % 10));
 	return numLong++;
 }
