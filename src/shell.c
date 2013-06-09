@@ -4,45 +4,32 @@
 #include "../include/kasm.h"
 #include "../include/string.h"
 
-unsigned char kbdus[128] =
-{
-    0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
-  '9', '0', '-', '=', '\b',	/* Backspace */
-  '\t',			/* Tab */
-  'q', 'w', 'e', 'r',	/* 19 */
-  't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',	/* Enter key */
-    0,			/* 29   - Control */
-  'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',	/* 39 */
- '\'', '`',   0,		/* Left shift */
- '\\', 'z', 'x', 'c', 'v', 'b', 'n',			/* 49 */
-  'm', ',', '.', '/',   0,				/* Right shift */
-  '*',
-    0,	/* Alt */
-  ' ',	/* Space bar */
-    0,	/* Caps lock */
-    0,	/* 59 - F1 key ... > */
-    0,   0,   0,   0,   0,   0,   0,   0,
-    0,	/* < ... F10 */
-    0,	/* 69 - Num lock*/
-    0,	/* Scroll Lock */
-    0,	/* Home key */
-    0,	/* Up Arrow */
-    0,	/* Page Up */
-  '-',
-    0,	/* Left Arrow */
-    0,
-    0,	/* Right Arrow */
-  '+',
-    0,	/* 79 - End key*/
-    0,	/* Down Arrow */
-    0,	/* Page Down */
-    0,	/* Insert Key */
-    0,	/* Delete Key */
-    0,   0,   0,
-    0,	/* F11 Key */
-    0,	/* F12 Key */
-    0,	/* All other keys are undefined */
+unsigned char minKeys[] =
+{  0,  ESC, '1', '2', '3', '4', '5', '6', '7', '8', 
+ '9', '0', '-', '=','\b','\t', 'q', 'w', 'e', 'r', 
+ 't', 'y', 'u', 'i', 'o', 'p', '[', ']','\n',   0,
+ 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
+'\'', '`',   MAY,'\\', 'z', 'x', 'c', 'v', 'b', 'n',
+ 'm', ',', '.', '/',   MAY, '*',   0, ' ',   CAPS,	0,
+  0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
+  0,   0, 	UP,   0,  '-', LEFT,  0, RIGHT, '+', 0,
+ DOWN,   0,    0,   0,   0,   0,   0,   0,   0, 
 };
+
+unsigned char mayCapsKeys[] =
+{  0,  ESC, '1', '2', '3', '4', '5', '6', '7', '8', 
+ '9', '0', '-', '=','\b','\t', 'Q', 'W', 'E', 'R', 
+ 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']','\n',   0,
+ 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';',
+'\'', '`',   MIN,'\\', 'Z', 'X', 'C', 'V', 'B', 'N',
+ 'M', ',', '.', '/',   MIN, '*',   0, ' ',   CAPS,	0,
+  0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
+  0,   0, 	UP,   0,  '-', LEFT,  0, RIGHT, '+', 0,
+ DOWN,   0,    0,   0,   0,   0,   0,   0,   0, 
+};
+
+unsigned char * keyboard = minKeys;
+
 
 /***************************************************************
 *initializeShell
@@ -88,36 +75,43 @@ void flush() {
 
 void printKey(int scancode) {
     int i, j;
-	char c = kbdus[scancode];;
+	char c;
+	printInt(scancode);
 	
+	if(defineScancode(scancode))
+		return;
+	
+	c = keyboard[scancode];
 	if(c == 0)
 		return;
 	
-    if(scancode <= 128) {
+    if(scancode <= 80) {
 		moveUp();
 		
 		switch(c) {
 		
-		case '\n':
-					screen[curLine][curCol] = 0;
-					interpret();
-					curLine++;
-					moveUp();
-					curCol = 0;
-					printPrompt();
-					break;
-		case '\b':
-					if(curCol > promptLength + 1) { 
-						screen[curLine][--curCol] = ' ';
-					}
-					curCol--;
-					break;
-		case '\t':
-					for(i = 0; i < 5; i++)
-						screen[curLine][curCol++] = ' ';
-					break;
-		default:
-				    screen[curLine][curCol] = c;
+			case '\n':
+						screen[curLine][curCol] = 0;
+						interpret();
+						curLine++;
+						moveUp();
+						curCol = 0;
+						printPrompt();
+						break;
+			case '\b':
+						if(cursorRange(promptLength+2, COLS-1)) { 
+							screen[curLine][--curCol] = ' ';
+						}
+						curCol--;
+						break;
+			case '\t':
+						for(i = 0; i < 5; i++)
+							screen[curLine][curCol++] = ' ';
+						break;
+			default:
+						if(!cursorRange(promptLength+1, COLS-2))
+							return;
+						screen[curLine][curCol] = c;
 		}
 		
         flush();
@@ -144,7 +138,6 @@ void interpret() {
 		curLine--;
 	}
 
-
 }
 
 /***************************************************************
@@ -160,6 +153,57 @@ void printPrompt() {
 	while(prompt[i] != 0) {
 		screen[curLine][curCol++] = prompt[i++];
 	}
+}
+
+/***************************************************************
+*defineScancode
+*
+* Analiza el scancode, moviendo el cursor y seleccionando el teclado
+****************************************************************/
+int defineScancode(int scancode) {
+	char c = keyboard[scancode];
+	
+	switch(c) {
+	
+		case UP:
+				return TRUE;
+		case DOWN:
+				return TRUE;
+		case LEFT:
+				if(cursorRange(promptLength+2, COLS-1)) {
+					update_cursor(curLine, curCol-2);
+					curCol--;
+				}
+				return TRUE;
+		case RIGHT:
+				if(cursorRange(promptLength+1,COLS-2)){
+					update_cursor(curLine, curCol);
+					curCol++;
+				}
+				return TRUE;
+		case CAPS:
+				if(keyboard == minKeys)
+					keyboard = mayCapsKeys;
+				else
+					keyboard = minKeys;
+				return TRUE;
+		case MIN:
+				keyboard = minKeys;
+				return 0;
+		case MAY:
+				keyboard = minKeys;
+				return 0;
+		case ESC:
+				while(curCol > promptLength + 1 ) {
+					screen[curLine][--curCol] = ' ';
+				}
+				flush();
+				update_cursor(curLine, curCol-1);
+				return TRUE;
+		default:
+				return FALSE;
+	}
+
 }
 
 /***************************************************************
@@ -232,4 +276,13 @@ void update_cursor(int row, int col)
 	_outb( (unsigned char *) 0x03D4, 0x0F);
 	_outb( (unsigned char *) 0x03D5, position);
  }
+ 
+ /***************************************************************
+*cursorRange
+*
+* 
+****************************************************************/
 
+int cursorRange(int left, int right) {
+	return (curCol >= left) && (curCol <= right);
+}

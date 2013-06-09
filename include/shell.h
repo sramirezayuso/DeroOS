@@ -7,7 +7,16 @@
 #ifndef _shell
 #define _shell_
 
-#define BLACK_TXT 0xF0 // Atributo de video. Fondo Blanco - Letras Negras
+#define BLACK_TXT 	0xF0 // Atributo de video. Fondo Blanco - Letras Negras
+
+#define ESC 		-27
+#define LEFT		-28
+#define RIGHT		-29
+#define UP			-30
+#define DOWN		-31
+#define MAY			-32
+#define MIN			-33
+#define CAPS		-34
 
 /* Muestra la imagen de inicio */
 void showSplashScreen();
@@ -41,5 +50,10 @@ void update_cursor(int row, int col);
 
 /* Interpreta un comando ingresado */
 void interpret();
+
+/* Analiza el scancode, moviendo el cursor y seleccionando el teclado */
+int defineScancode(int scancode);
+
+int cursorRange(int left, int right);
 
 #endif
