@@ -1,6 +1,8 @@
 #include "../include/kc.h"
 #include "../include/defs.h"
 #include "../include/kernel.h"
+#include "../include/kasm.h"
+#include "../include/stdio.h"
 
 /***************************************************************
 *setup_IDT_entry
@@ -13,6 +15,8 @@
 *	 Cero
 ****************************************************************/
 
+
+
 void setup_IDT_entry (DESCR_INT *item, byte selector, dword offset, byte access,
 			 byte cero) {
   item->selector = selector;
@@ -21,3 +25,4 @@ void setup_IDT_entry (DESCR_INT *item, byte selector, dword offset, byte access,
   item->access = access;
   item->cero = cero;
 }
+

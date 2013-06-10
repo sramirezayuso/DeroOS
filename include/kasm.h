@@ -25,3 +25,6 @@ char		_read(byte * pos);
 void		_debug (void);
 
 void		_outb(unsigned char * to, unsigned short from);
+void		_outl(unsigned short to, unsigned long data);
+unsigned long	_inl(unsigned short from);
+

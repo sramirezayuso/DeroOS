@@ -19,5 +19,12 @@ void		_Sti(void);	 /* Habilita interrupciones  */
 void		_int_08_hand();      /* Timer tick */
 void		_int_09_hand();      /* Keyboard */
 
+void		_writeScreen(byte caracter, byte * pos);
+char		_read(byte * pos);
+
 void		_debug (void);
+
+void		_outb(unsigned char * to, unsigned short from);
+void		_outl(unsigned short to, unsigned long data);
+unsigned long	_ibl(unsigned short from);
 

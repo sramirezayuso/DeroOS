@@ -1,6 +1,7 @@
 #include "../include/stdio.h"
 #include "../include/kernel.h"
 #include "../include/shell.h"
+#include "../include/kasm.h"
 
 /* Imprime un caracter por pantalla */
 void printChar (char c);
@@ -10,6 +11,10 @@ int print (char* string);
 
 /* Imprime el entero por pantalla y devuelve la longitud del mismo */
 int printInt (int num);
+
+unsigned short pciConfigReadWord (unsigned short bus, unsigned short slot, 
+				unsigned short func, unsigned short offset);
+void lspci();
 
 int printf ( const char * format, ... ) {
 	va_list ap;
@@ -110,3 +115,38 @@ int printInt (int num){
     putc('0'+ (num % 10));
 	return numLong++;
 }
+
+void lspci()
+ {
+	int bus, slot;
+	unsigned short vendor, device;
+	for(bus = 0; bus < 256; bus++){
+		for(slot = 0; slot < 32; slot++){
+			vendor = pciConfigReadWord(bus,slot,0,0);
+			if(vendor != 0xFFFF){
+				device = pciConfigReadWord(bus,slot,0,2);
+				printf("%d", vendor);
+				putc('c');					
+				printf("%d", device);
+			}
+		}	
+	}
+}
+
+ unsigned short pciConfigReadWord (unsigned short bus, unsigned short slot,
+				unsigned short func, unsigned short offset)
+ {
+    unsigned long address;
+    unsigned long longBus = (unsigned long)bus;
+    unsigned long longSlot = (unsigned long)slot;
+    unsigned long longFunc = (unsigned long)func;
+    unsigned short tmp = 0;
+ 
+    address = (unsigned long)((longBus << 16) | (longSlot << 11) | (longFunc << 8) 
+				| (offset & 0xfc) | ((unsigned long)0x80000000));
+ 
+    _outl(0x0CF8, address);
+
+    tmp = (unsigned short)((_inl(0x0CFC) >> ((offset & 2) * 8)) & 0xffff);
+    return (tmp);
+ }

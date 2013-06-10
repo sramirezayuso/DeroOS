@@ -4,6 +4,7 @@
 #include "../include/stdio.h"
 #include "../include/kc.h"
 #include "../include/shell.h"
+#include "../include/libc.h"
 
 DESCR_INT idt[0xA];                     /* IDT de 10 entradas*/
 IDTR idtr;                              /* IDTR */
@@ -16,7 +17,8 @@ void int_08() {
 }
 
 void int_09(int scancode) {
-    decodeScancode(scancode);
+	lspci();
+    //decodeScancode(scancode);
 }
 
 size_t __write(int fd, const void* buffer, size_t count) {
