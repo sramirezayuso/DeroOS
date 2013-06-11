@@ -4,8 +4,8 @@
 #include "../include/kasm.h"
 
 
-#define CMOS_ADDRESS  0x70
-#define CMOS_DATA  0x71
+#define CMOS_ADDRESS  	0x70
+#define CMOS_DATA		0x71
 /* Imprime un caracter por pantalla */
 void printChar (char c);
 
@@ -155,29 +155,28 @@ void lspci()
  }
 
  int get_update_in_progress_flag() {
-      _outb(CMOS_ADDRESS, 0x0A);
+      _outb((unsigned char *)CMOS_ADDRESS, 0x0A);
       return (_inb(CMOS_DATA) & 0x80);
 }
 
-
-void read_rtc() {
-    unsigned char second;
-    unsigned char minute;
-    unsigned char hour;
+unsigned char ans[9];
+unsigned char * read_rtc() {
+    unsigned char hour, minute, second;
     unsigned char registerB;
+
 
     // Note: This uses the "read registers until you get the same values twice in a row" technique
     //       to avoid getting dodgy/inconsistent values due to RTC updates
 
     while (get_update_in_progress_flag());
-    _outb(CMOS_ADDRESS, 0x00);
+    _outb((unsigned char *) CMOS_ADDRESS, 0x00);
     second = _inb(CMOS_DATA);
-    _outb(CMOS_ADDRESS, 0x02);
+    _outb((unsigned char *)CMOS_ADDRESS, 0x02);
     minute = _inb(CMOS_DATA);
-    _outb(CMOS_ADDRESS, 0x04);
+    _outb((unsigned char *)CMOS_ADDRESS, 0x04);
     hour = _inb(CMOS_DATA);
 
-    _outb(CMOS_ADDRESS, 0x0B);
+    _outb((unsigned char *)CMOS_ADDRESS, 0x0B);
     registerB = _inb(CMOS_DATA);
 
     if (!(registerB & 0x04)) {
@@ -189,11 +188,15 @@ void read_rtc() {
     if (!(registerB & 0x02) && (hour & 0x80)) {
         hour = ((hour & 0x7F) + 12) % 24;
     }
-
-    printf("%d", hour);
-    putc(' ');
-    printf("%d", minute);
-    putc(' ');
-    printf("%d", second);
-    putc(' ');
+	
+	ans[0] = (hour/10) + '0';
+    ans[1] = (hour%10) + '0';
+	ans[2] = ':';
+	ans[3] = (minute/10) + '0';
+    ans[4] = (minute%10) + '0';
+	ans[5] = ':';
+	ans[6] = (second/10) + '0';
+    ans[7] = (second%10) + '0';
+	ans[8] = 0;
+	return ans;
 }

@@ -9,16 +9,12 @@ DESCR_INT idt[0xA];                     /* IDT de 10 entradas*/
 IDTR idtr;                              /* IDTR */
 
 void int_08() {
-
-    //char *video = (char *) 0xb8000;
-    //video[tickpos+=2]='!';
-
+    putOnTopRight(read_rtc());
+	//tmp
 }
 
 void int_09(int scancode) {
-	read_rtc();
-	//lspci();
-    //decodeScancode(scancode);
+    decodeScancode(scancode);
 }
 
 size_t __write(int fd, const void* buffer, size_t count) {

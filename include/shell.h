@@ -7,7 +7,12 @@
 #ifndef _shell
 #define _shell_
 
-#define BLACK_TXT 	0xF0 // Atributo de video. Fondo Blanco - Letras Negras
+#define WHTBLK 	0xF0 // Atributo de video. Fondo Blanco - Letras Negras
+#define REDWHT 	0x4F // Atributo de video. Fondo Rojo - Letras Blancas
+
+#define SCREEN		0xb8000
+#define ROWS		25
+#define COLS		80
 
 #define ESC 		-27
 #define LEFT		-28
@@ -57,5 +62,7 @@ int defineScancode(int scancode);
 int cursorRange(int left, int right);
 
 void printKey(char c);
+
+void putOnTopRight(unsigned char * value);
 
 #endif
