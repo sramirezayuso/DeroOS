@@ -26,5 +26,6 @@ void lspci();
 
 unsigned char * read_rtc();
 
+void read_temp();
 
 #endif

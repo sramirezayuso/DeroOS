@@ -5,6 +5,7 @@ GLOBAL  _mascaraPIC1,_mascaraPIC2,_Cli,_Sti
 GLOBAL  _debug
 GLOBAL  _writeScreen, _read
 GLOBAL	_outb, _inb, _outl, _inl
+GLOBAL	_read_msr
 
 EXTERN  int_08
 EXTERN  int_09
@@ -157,6 +158,17 @@ _inl:
 		mov     dx, [ebp+8]
 		in 	eax, dx
 		pop     edx
+		mov     esp, ebp
+		pop     ebp
+		ret
+		
+_read_msr:
+		push    ebp
+		mov     ebp, esp
+		push 	ecx
+		mov 	ecx, [ebp+8]
+		rdmsr
+		pop		ecx
 		mov     esp, ebp
 		pop     ebp
 		ret

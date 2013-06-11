@@ -2,10 +2,8 @@
 #include "../include/kernel.h"
 #include "../include/shell.h"
 #include "../include/kasm.h"
+#include "../include/defs.h"
 
-
-#define CMOS_ADDRESS  	0x70
-#define CMOS_DATA		0x71
 /* Imprime un caracter por pantalla */
 void printChar (char c);
 
@@ -188,7 +186,7 @@ unsigned char * read_rtc() {
     if (!(registerB & 0x02) && (hour & 0x80)) {
         hour = ((hour & 0x7F) + 12) % 24;
     }
-	
+
 	ans[0] = (hour/10) + '0';
     ans[1] = (hour%10) + '0';
 	ans[2] = ':';
@@ -199,4 +197,13 @@ unsigned char * read_rtc() {
     ans[7] = (second%10) + '0';
 	ans[8] = 0;
 	return ans;
+}
+
+void read_temp(){
+    dword maxTemp = _read_msr(MSR_IA32_TEMPERATURE_TARGET);
+    maxTemp = (maxTemp & 0x0007F000) >> 16;
+    dword temp = _read_msr(MSR_IA32_THERM_STATUS);
+    temp = (temp & 0x0007F000) >> 16;
+    temp = maxTemp - temp;
+    printf("%d", temp);
 }
