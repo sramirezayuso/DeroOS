@@ -4,7 +4,6 @@
 #include "../include/stdio.h"
 #include "../include/kc.h"
 #include "../include/shell.h"
-#include "../include/libc.h"
 
 DESCR_INT idt[0xA];                     /* IDT de 10 entradas*/
 IDTR idtr;                              /* IDTR */
@@ -17,7 +16,8 @@ void int_08() {
 }
 
 void int_09(int scancode) {
-	lspci();
+	read_rtc();
+	//lspci();
     //decodeScancode(scancode);
 }
 
@@ -108,7 +108,7 @@ void kmain()
 		initializeShell();
         while(1)
         {
-			
+
         }
 
 }

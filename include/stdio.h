@@ -20,9 +20,11 @@ int getc ( );
 
 int putc ( int character );
 
-unsigned short pciConfigReadWord (unsigned short bus, unsigned short slot, 
+unsigned short pciConfigReadWord (unsigned short bus, unsigned short slot,
 				unsigned short func, unsigned short offset);
 void lspci();
+
+void read_rtc();
 
 
 #endif

@@ -4,7 +4,7 @@ GLOBAL  _int_09_hand
 GLOBAL  _mascaraPIC1,_mascaraPIC2,_Cli,_Sti
 GLOBAL  _debug
 GLOBAL  _writeScreen, _read
-GLOBAL	_outb, _outl, _inl
+GLOBAL	_outb, _inb, _outl, _inl
 
 EXTERN  int_08
 EXTERN  int_09
@@ -122,6 +122,18 @@ _outb:
 		pop     eax
 		mov     esp, ebp
 		pop     ebp
+		ret
+
+_inb:
+		push	ebp
+		mov     ebp, esp
+		push	eax
+		push	edx
+		mov     edx, [ebp+8]
+		in     	al, dx
+		pop   	edx
+		mov     esp, ebp
+		pop   	ebp
 		ret
 
 _outl:
