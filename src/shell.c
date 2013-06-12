@@ -165,6 +165,8 @@ void interpret() {
 	
 	curRow++;
 	curCol = 0;
+	if(curRow == ROWS)
+		promptRow = ROWS - 2;
 	if(strcmp( (char *) command, "help") == 0) {
 		moveUp();
 		printf("clear - Clears the screen.\n");
@@ -174,6 +176,7 @@ void interpret() {
 		printf("putc [param] - Acts as the putc function.\n");
 		printf("getc [param] - Acts as the getc function.\n");
 		printf("printf [param] - Acts as the printf function.\n");
+		printf("scanf -x [param] - Acts as the scanf function.\n");
 		printf("help - It's what you are reading.");
 		return;
 	}
@@ -195,7 +198,7 @@ void interpret() {
 		printf("The temperature is %s", read_temp());
 		return;
 	}
-	
+
 	aux = strstarts( (char *) command, "getc ");
 	if(aux != NULL) {
 		moveUp();
@@ -219,6 +222,35 @@ void interpret() {
 		return;
 	}
 	
+	aux = strstarts( (char *) command, "scanf -d ");
+	if(aux != NULL) {
+		moveUp();
+		int d;
+		promptCol = promptLength + 10;
+		scanf("%d",&d);
+		printf("%d",d);
+		return;
+	}
+	
+	aux = strstarts( (char *) command, "scanf -c ");
+	if(aux != NULL) {
+		moveUp();
+		char c;
+		promptCol = promptLength + 10;
+		scanf("%c",&c);
+		printf("%c",c);
+		return;
+	}
+	
+	aux = strstarts( (char *) command, "scanf -s ");
+	if(aux != NULL) {
+		moveUp();
+		char s;
+		promptCol = promptLength + 10;
+		scanf("%s",&s);
+		printf("%s",s);
+		return;
+	}
 	
 	moveUp();
 	printf("Command not found");
@@ -326,8 +358,7 @@ void k_clear_screen() {
 /***************************************************************
 *update_cursor
 *
-* http://wiki.osdev.org/Text_Mode_Cursor
-* by Dark Fiber
+* Fuente: http://wiki.osdev.org/Text_Mode_Cursor
 ****************************************************************/
 
 void update_cursor(int row, int col)
@@ -426,6 +457,7 @@ char readFromShell() {
 	
 	if(++promptCol == COLS) {
 		promptCol = 0;
+		promptRow++;
 		if(++promptRow == ROWS);
 			promptRow--;
 	}

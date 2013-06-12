@@ -180,13 +180,11 @@ int getInt() {
 
 char * getString() {
 	char * ret, c;
-	int i=0, size = 10;
-	char aux[size];
+	int i=0;
 
 	while( (c=getc()) != 0) {
 		ret[i++] = c;
 	}
 	ret[i] = 0;
-	
 	return ret;
 }

@@ -4,7 +4,6 @@
 #include "../include/kasm.h"
 #include "../include/stdio.h"
 #include "../include/devicetable.h"
-//#include "../include/vendortable.h"
 
 /***************************************************************
 *setup_IDT_entry

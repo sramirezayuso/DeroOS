@@ -1,4 +1,4 @@
-FLAGS=-c -g -Wall -m32 -Wno-unused-variable
+FLAGS=-c -g -w -m32
 all:
 	nasm -f aout src/libasm.asm -o bin/libasm.o
 	nasm -f aout src/loader.asm -o bin/loader.o
