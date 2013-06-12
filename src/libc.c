@@ -3,6 +3,8 @@
 #include "../include/kernel.h"
 #include "../include/kasm.h"
 #include "../include/stdio.h"
+#include "../include/devicetable.h"
+//#include "../include/vendortable.h"
 
 /***************************************************************
 *setup_IDT_entry
@@ -29,16 +31,23 @@ void setup_IDT_entry (DESCR_INT *item, byte selector, dword offset, byte access,
 
 void lspci()
  {
-	int bus, slot;
+	int bus, slot, i;
+	char*answer;
 	unsigned short vendor, device;
 	for(bus = 0; bus < 256; bus++){
 		for(slot = 0; slot < 32; slot++){
 			vendor = pciConfigReadWord(bus,slot,0,0);
 			if(vendor != 0xFFFF){
-				device = pciConfigReadWord(bus,slot,0,2);
-				printf("%d", vendor);
-				putc('c');
-				printf("%d", device);
+                device = pciConfigReadWord(bus,slot,0,2);
+			    for(i = 0; i < PCI_DEVTABLE_LEN; i++){
+			        if(PciDevTable[i].VenId == vendor && PciDevTable[i].DevId == device){
+                        answer = PciDevTable[i].ChipDesc;
+                        break;
+			        } else {
+			            answer = "Unknown Device";
+			        }
+			    }
+			    printf("%s\n", answer);
 			}
 		}
 	}
@@ -56,14 +65,14 @@ void lspci()
     address = (unsigned long)((longBus << 16) | (longSlot << 11) | (longFunc << 8)
 				| (offset & 0xfc) | ((unsigned long)0x80000000));
 
-    _outl(0x0CF8, address);
+    _outl(PCI_ADDRESS, address);
 
-    tmp = (unsigned short)((_inl(0x0CFC) >> ((offset & 2) * 8)) & 0xffff);
+    tmp = (unsigned short)((_inl(PCI_DATA) >> ((offset & 2) * 8)) & 0xffff);
     return (tmp);
  }
 
  int get_update_in_progress_flag() {
-      _outb((unsigned char *)CMOS_ADDRESS, 0x0A);
+      _outb((unsigned char *)CMOS_ADDRESS, REGISTER_A);
       return (_inb(CMOS_DATA) & 0x80);
 }
 
@@ -77,14 +86,14 @@ unsigned char * read_rtc() {
     //       to avoid getting dodgy/inconsistent values due to RTC updates
 
     while (get_update_in_progress_flag());
-    _outb((unsigned char *) CMOS_ADDRESS, 0x00);
+    _outb((unsigned char *) CMOS_ADDRESS, SECOND_REG);
     second = _inb(CMOS_DATA);
-    _outb((unsigned char *)CMOS_ADDRESS, 0x02);
+    _outb((unsigned char *)CMOS_ADDRESS, MINUTE_REG);
     minute = _inb(CMOS_DATA);
-    _outb((unsigned char *)CMOS_ADDRESS, 0x04);
+    _outb((unsigned char *)CMOS_ADDRESS, HOUR_REG);
     hour = _inb(CMOS_DATA);
 
-    _outb((unsigned char *)CMOS_ADDRESS, 0x0B);
+    _outb((unsigned char *)CMOS_ADDRESS, REGISTER_B);
     registerB = _inb(CMOS_DATA);
 
     if (!(registerB & 0x04)) {
@@ -96,7 +105,7 @@ unsigned char * read_rtc() {
     if (!(registerB & 0x02) && (hour & 0x80)) {
         hour = ((hour & 0x7F) + 12) % 24;
     }
-	
+
 	ans[0] = (hour/10) + '0';
     ans[1] = (hour%10) + '0';
 	ans[2] = ':';
@@ -117,7 +126,7 @@ unsigned char * read_temp(){
     dword temp = _read_msr(MSR_IA32_THERM_STATUS);
     temp = (temp & 0x0007F000) >> 16;
     temp = maxTemp - temp;
-	
+
 	if(temp < 0) {
 		ansTemp[0] = 'E';
 		ansTemp[1] = 'R';

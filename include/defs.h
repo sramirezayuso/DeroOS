@@ -26,6 +26,8 @@
 
 #define CMOS_ADDRESS  	0x70
 #define CMOS_DATA		0x71
+#define PCI_ADDRESS     0x0CF8
+#define PCI_DATA        0x0CFC
 #define REGISTER_A      0X0A
 #define REGISTER_B		0x0B
 #define HOUR_REG		0x04
