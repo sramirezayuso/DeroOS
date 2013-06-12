@@ -9,8 +9,7 @@ DESCR_INT idt[0xA];                     /* IDT de 10 entradas*/
 IDTR idtr;                              /* IDTR */
 
 void int_08() {
-    putOnTopRight(read_rtc());
-	//tmp
+    putOnTopRight(read_rtc(), read_temp());
 }
 
 void int_09(int scancode) {
@@ -26,19 +25,18 @@ size_t __write(int fd, const void* buffer, size_t count) {
 
         switch(fd) {
                 case STDOUT:
-                                while(count) {
-                                        _writeScreen(b[cantW], (unsigned char *) screenPosition(2));
-                                        count--;
-                                        cantW++;
-                                }
+					while(count) {
+						_write(b[cantW], (unsigned char *) SCREEN + tickpos);
+						tickpos += 2;
+						count--;
+						cantW++;
+					}
 
-                                return cantW;
+					return cantW;
                 default:
-                                return -1;
+                    return -1;
         }
 }
-
-
 
 size_t __read(int fd, void* buffer, size_t count) {
 
@@ -49,9 +47,9 @@ size_t __read(int fd, void* buffer, size_t count) {
 
         switch(fd) {
 
-        case STDOUT:
+        case STDIN:
             while(count) {
-                char var = _read((unsigned char * ) 0xb8000);
+                char var = readFromShell();
                 cBuf = buffer;
                 cBuf[cantR] = var;
                 count--;

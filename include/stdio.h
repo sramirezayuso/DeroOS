@@ -11,7 +11,6 @@ stdio.h
 #define va_end(ap) ((ap) = 0)
 typedef void* va_list;
 
-
 int printf ( const char * format, ... );
 
 int scanf ( const char * format, ... );
@@ -19,13 +18,5 @@ int scanf ( const char * format, ... );
 int getc ( );
 
 int putc ( int character );
-
-unsigned short pciConfigReadWord (unsigned short bus, unsigned short slot,
-				unsigned short func, unsigned short offset);
-void lspci();
-
-unsigned char * read_rtc();
-
-void read_temp();
 
 #endif

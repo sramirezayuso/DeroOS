@@ -9,8 +9,8 @@
 #ifndef _kernel_
 #define _kernel_
 
-#define OS_PID	0
-
+#define OS_PID		0
+#define SCREEN		0xb8000
 int (*player)(void);
 
 typedef int size_t;

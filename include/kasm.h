@@ -19,7 +19,7 @@ void		_Sti(void);	 /* Habilita interrupciones  */
 void		_int_08_hand();      /* Timer tick */
 void		_int_09_hand();      /* Keyboard */
 
-void		_writeScreen(byte caracter, byte * pos);
+void		_write(byte caracter, byte * pos);
 char		_read(byte * pos);
 
 void		_debug (void);

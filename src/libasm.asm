@@ -3,7 +3,7 @@ GLOBAL  _int_08_hand
 GLOBAL  _int_09_hand
 GLOBAL  _mascaraPIC1,_mascaraPIC2,_Cli,_Sti
 GLOBAL  _debug
-GLOBAL  _writeScreen, _read
+GLOBAL  _write, _read
 GLOBAL	_outb, _inb, _outl, _inl
 GLOBAL	_read_msr
 
@@ -91,7 +91,7 @@ _int_09_hand:				; Handler de INT 9 ( Keyboard )
         pop     ds
         iret
 
-_writeScreen:
+_write:
         push	ebp
         mov		ebp, esp
 		mov 	al, [ebp+8]		;Byte a escribir

@@ -4,16 +4,15 @@
 *
 ***********************************/
 
-#ifndef _shell
+#ifndef _shell_
 #define _shell_
 
 #define WHTBLK 	0xF0 // Atributo de video. Fondo Blanco - Letras Negras
 #define REDWHT 	0x4F // Atributo de video. Fondo Rojo - Letras Blancas
 
-#define SCREEN		0xb8000
 #define ROWS		25
 #define COLS		80
-
+#define ENTER 		-26
 #define ESC 		-27
 #define LEFT		-28
 #define RIGHT		-29
@@ -23,11 +22,7 @@
 #define MIN			0
 #define CAPS		-34
 
-/* Muestra la imagen de inicio */
-void showSplashScreen();
-
-/* Tiempo de espera */
-void wait(int time);
+extern int tickpos;
 
 /* Limpia la pantalla */
 void k_clear_screen();
@@ -43,9 +38,6 @@ void decodeScancode(int scancode);
 
 /* Imprime el prompt del sistema */
 void printPrompt();
-
-/* Devuelve la posicion en la pantalla */
-char * screenPosition(int advance);
 
 /* Mueve las lineas del shell una linea hacia arriba */
 void moveUp();
@@ -63,6 +55,8 @@ int cursorRange(int left, int right);
 
 void printKey(char c);
 
-void putOnTopRight(unsigned char * value);
+void putOnTopRight(unsigned char * value1, unsigned char * value2);
+
+char readFromShell();
 
 #endif

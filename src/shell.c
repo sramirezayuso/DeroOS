@@ -4,6 +4,7 @@
 #include "../include/kasm.h"
 #include "../include/string.h"
 #include "../include/stdio.h"
+#include "../include/kc.h"
 
 /* Imprime el prompt del sistema */
 void printPrompt();
@@ -19,16 +20,20 @@ int defineScancode(int scancode);
 
 void newLine();
 
+void newLinePrompt();
+
 void backspace();
 
 void newKey(char c);
 
 void tab();
 
+int tickpos;
+
 unsigned char minKeys[] =
 {  0,  ESC, '1', '2', '3', '4', '5', '6', '7', '8', 
  '9', '0', '-', '=','\b','\t', 'q', 'w', 'e', 'r', 
- 't', 'y', 'u', 'i', 'o', 'p', '[', ']','\n',   0,
+ 't', 'y', 'u', 'i', 'o', 'p', '[', ']', ENTER,   0,
  'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
 '\'', '`',   MAY,'\\', 'z', 'x', 'c', 'v', 'b', 'n',
  'm', ',', '.', '/',   MAY, '*',   0, ' ',   CAPS,	0,
@@ -38,21 +43,9 @@ unsigned char minKeys[] =
 };
 
 unsigned char mayKeys[] =
-{  0,  ESC, '!', '@', '#', '$', '%', '^', '&', '*', 
- '(', ')', '_', '+','\b','\t', 'Q', 'W', 'E', 'R', 
- 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}','\n',   0,
- 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':',
-'"', '~',   MIN,'|', 'Z', 'X', 'C', 'V', 'B', 'N',
- 'M', '<', '>', '?',   MIN, '*',   0, ' ',   CAPS,	0,
-  0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
-  0,   0, 	UP,   0,  '-', LEFT,  0, RIGHT, '+', 0,
- DOWN,   0,    0,   0,   0,   0,   0,   0,   0, 
-};
-
-unsigned char mayCapsKeys[] =
 {  0,  ESC, '1', '2', '3', '4', '5', '6', '7', '8', 
  '9', '0', '-', '=','\b','\t', 'Q', 'W', 'E', 'R', 
- 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']','\n',   0,
+ 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', ENTER,   0,
  'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';',
 '\'', '`',   MIN,'\\', 'Z', 'X', 'C', 'V', 'B', 'N',
  'M', ',', '.', '/',   MIN, '*',   0, ' ',   CAPS,	0,
@@ -62,12 +55,12 @@ unsigned char mayCapsKeys[] =
 };
 
 unsigned char * keyboard = minKeys;
-int tickpos = 0;
 int promptLength;
 
 unsigned char screen[ROWS][COLS]; /* screen[filas][columnas]*/
 int curRow = 1;
 int curCol = 0;
+int promptRow, promptCol;
 
 /***************************************************************
 *initializeShell
@@ -76,14 +69,17 @@ int curCol = 0;
 ****************************************************************/
 
 void initializeShell() {
-	char * vidmem = (char *) SCREEN;
+	int redwht = REDWHT;
+	int whtblk = WHTBLK;
 	unsigned int i = 0;
 	
 	while(i < (ROWS*COLS*2)) {
+		tickpos = i;
 		if(i <= COLS*2)
-			vidmem[i++] = REDWHT;
+			__write(STDOUT, &redwht, 1);
 		else
-			vidmem[i++] = WHTBLK;
+			__write(STDOUT, &whtblk, 1);
+		i++;
 	}
 	
 	printPrompt();
@@ -154,7 +150,8 @@ void printKey(char c) {
 ****************************************************************/
 
 void interpret() {
-	const unsigned char * command = &(screen[curRow][promptLength + 1]);
+	const unsigned char * command = &(screen[promptRow][promptLength + 1]);
+	char * aux, c;
 	
 	if(strcmp( (char *) command, "") == 0) {
 		return;
@@ -168,6 +165,19 @@ void interpret() {
 	
 	curRow++;
 	curCol = 0;
+	if(strcmp( (char *) command, "help") == 0) {
+		moveUp();
+		printf("clear - Clears the screen.\n");
+		printf("lspci - Shows the devices connected to the PCI buses.\n");
+		printf("hour - Exhibits the current time.\n");
+		printf("cputemp - Displays the cpu temperature.\n");
+		printf("putc [param] - Acts as the putc function.\n");
+		printf("getc [param] - Acts as the getc function.\n");
+		printf("printf [param] - Acts as the printf function.\n");
+		printf("help - It's what you are reading.");
+		return;
+	}
+	
 	if(strcmp( (char *) command, "lspci") == 0) {
 		moveUp();
 		lspci();
@@ -176,10 +186,41 @@ void interpret() {
 	
 	if(strcmp( (char *) command, "hour") == 0) {
 		moveUp();
-		printf("La hora es %s", read_rtc());
+		printf("The hour is %s", read_rtc());
 		return;
 	}
 	
+	if(strcmp( (char *) command, "cputemp") == 0) {
+		moveUp();
+		printf("The temperature is %s", read_temp());
+		return;
+	}
+	
+	aux = strstarts( (char *) command, "getc ");
+	if(aux != NULL) {
+		moveUp();
+		promptCol = promptLength + 6;
+		c = getc();
+		putc(c);
+		return;
+	}
+	
+	aux = strstarts( (char *) command, "putc ");
+	if(aux != NULL) {
+		moveUp();
+		putc(screen[promptRow][promptLength + 6]);
+		return;
+	}
+	
+	aux = strstarts( (char *) command, "printf ");
+	if(aux != NULL) {
+		moveUp();
+		printf(&(screen[promptRow][promptLength + 8]));
+		return;
+	}
+	
+	
+	moveUp();
 	printf("Command not found");
 	
 }
@@ -197,6 +238,7 @@ void printPrompt() {
 	while(prompt[i] != 0) {
 		screen[curRow][curCol++] = prompt[i++];
 	}
+	promptRow = curRow;
 }
 
 /***************************************************************
@@ -219,7 +261,7 @@ int defineScancode(int scancode) {
 				return TRUE;
 		case CAPS:
 				if(keyboard == minKeys)
-					keyboard = mayCapsKeys;
+					keyboard = mayKeys;
 				else
 					keyboard = minKeys;
 				return TRUE;
@@ -227,6 +269,9 @@ int defineScancode(int scancode) {
 				while(screen[curRow][curCol-1] != 0) {
 					backspace();
 				}
+				return TRUE;
+		case ENTER:
+				newLinePrompt();
 				return TRUE;
 		default:
 				return FALSE;
@@ -256,20 +301,6 @@ void moveUp() {
 		}
 	}
 }
-
-/***************************************************************
-*screenPosition
-*
-* Devuelve la posicion de la pantalla en donde escribir
-****************************************************************/
-
-char * screenPosition(int advance) {
-		char * video = (char *) SCREEN;
-	    char * ret = video + tickpos;
-		tickpos += advance;
-		return ret;
-}
-
 
 /***************************************************************
 *k_clear_screen
@@ -317,6 +348,14 @@ void update_cursor(int row, int col)
 ****************************************************************/
 
 void newLine() {
+	curRow++;
+	moveUp();
+	curCol = 0;
+	flush();
+	update_cursor(curRow, curCol);
+}
+
+void newLinePrompt() {
 	interpret();
 	curRow++;
 	moveUp();
@@ -354,7 +393,6 @@ void tab() {
 
 }
 
-
 void newKey(char c) {
 	screen[curRow][curCol] = c;
 	if(++curCol > COLS-1){
@@ -366,11 +404,31 @@ void newKey(char c) {
 	flush();
 }
 
-void putOnTopRight(unsigned char * value) {
-	int i, aRow = 0, aCol = COLS-10;
+void putOnTopRight(unsigned char * value1, unsigned char * value2) {
+	int i, aRow = 0, aCol = COLS-16;
 	
-	for(i = 0; value[i] != 0; i++) {
-		screen[aRow][aCol++] = value[i];
+	for(i = 0; value1[i] != 0; i++) {
+		screen[aRow][aCol++] = value1[i];
+	}
+
+	screen[aRow][aCol++]= ' '; 
+	screen[aRow][aCol++]= '|'; 
+	screen[aRow][aCol++]= ' '; 
+
+	for(i = 0; value2[i] != 0; i++) {
+		screen[aRow][aCol++] = value2[i];
 	}
 	flush();
+}
+
+char readFromShell() {
+	char ret = screen[promptRow][promptCol];
+	
+	if(++promptCol == COLS) {
+		promptCol = 0;
+		if(++promptRow == ROWS);
+			promptRow--;
+	}
+	
+	return ret;
 }
