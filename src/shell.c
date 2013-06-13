@@ -273,7 +273,7 @@ void interpret() {
 	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
 		moveUp();
-		char * s;
+		char s[BUFF];
 		promptCol = promptLength + strlen(command) + 1;
 		scanf("%s", s);
 		printf("%s",s);

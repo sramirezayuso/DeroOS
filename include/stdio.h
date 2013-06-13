@@ -5,7 +5,7 @@ stdio.h
 
 #ifndef _stdio_
 #define _stdio_
-
+#define	BUFF		256
 #define va_start(ap, arg) ((ap) = (&arg))
 #define va_arg(ap) ( (ap) += sizeof(int) )
 #define va_end(ap) ((ap) = 0)

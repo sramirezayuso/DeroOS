@@ -2,7 +2,6 @@
 #include "../include/kernel.h"
 #include "../include/shell.h"
 #include "../include/kasm.h"
-#define	BUFF		256
 
 /* Imprime una cadena de caracteres por pantalla y devuelve la longitud del mismo */
 int print (char* string);
@@ -14,7 +13,7 @@ int printInt (int num);
 int getInt();
 
 /* Devuelve un string a partir de la posicion dada por el cursor */
-char * getString();
+void getString(char * s);
 
 int printf ( const char * format, ... ) {
 	va_list ap;
@@ -95,8 +94,7 @@ int scanf ( const char * format, ... ) {
 						break;
 				case 's':
 						stringVal = va_arg(ap);
-						char * ret = getString();
-						***stringVal = ret;
+						getString(*stringVal);
 						valReaded++;
 						break;
 				default:
@@ -175,13 +173,12 @@ int getInt() {
 }
 
 
-char * getString() {
-	char c, ret[BUFF];
+void getString(char * s) {
+	char c;
 	int i=0;
 	
 	while( (c=getc()) != 0 && i < BUFF) {
-		ret[i++] = c;
+		s[i++] = c;
 	}
-	ret[i] = 0;
-	return ret;
+	s[i] = 0;
 }
