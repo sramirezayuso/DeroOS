@@ -2,12 +2,7 @@
 #include "../include/kernel.h"
 #include "../include/shell.h"
 #include "../include/kasm.h"
-
-
-#define CMOS_ADDRESS  	0x70
-#define CMOS_DATA		0x71
-/* Imprime un caracter por pantalla */
-void printChar (char c);
+#define	BUFF		256
 
 /* Imprime una cadena de caracteres por pantalla y devuelve la longitud del mismo */
 int print (char* string);
@@ -15,8 +10,10 @@ int print (char* string);
 /* Imprime el entero por pantalla y devuelve la longitud del mismo */
 int printInt (int num);
 
+/* Devuelve un entero a partir de la posicion dada por el cursor */
 int getInt();
 
+/* Devuelve un string a partir de la posicion dada por el cursor */
 char * getString();
 
 int printf ( const char * format, ... ) {
@@ -72,7 +69,9 @@ int scanf ( const char * format, ... ) {
 	va_list ap;
 	va_start(ap, format);
 
-	void * val;
+	char ** charVal;
+	char *** stringVal;
+	int ** intVal;
 	int valReaded = 0;
 	int i;
 
@@ -85,21 +84,19 @@ int scanf ( const char * format, ... ) {
 
 				case 'i':
 				case 'd':
-						val = va_arg(ap);
-						int ** auxInt = (int *) val;
-						**auxInt = getInt();
+						intVal = va_arg(ap);
+						**intVal = getInt();
 						valReaded++;
 						break;
 				case 'c':
-						val = va_arg(ap);
-						char ** auxChar = (char *) val;
-						**auxChar = getc();
+						charVal = va_arg(ap);
+						**charVal = getc();
 						valReaded++;
 						break;
 				case 's':
-						val = va_arg(ap);
-						char ** auxString = (char *) val;
-						**auxString = getString();
+						stringVal = va_arg(ap);
+						char * ret = getString();
+						***stringVal = ret;
 						valReaded++;
 						break;
 				default:
@@ -164,7 +161,6 @@ int printInt (int num){
 	return numLong++;
 }
 
-
 int getInt() {
 	int ret;
 	char c;
@@ -178,11 +174,12 @@ int getInt() {
 	return ret;
 }
 
-char * getString() {
-	char * ret, c;
-	int i=0;
 
-	while( (c=getc()) != 0) {
+char * getString() {
+	char c, ret[BUFF];
+	int i=0;
+	
+	while( (c=getc()) != 0 && i < BUFF) {
 		ret[i++] = c;
 	}
 	ret[i] = 0;

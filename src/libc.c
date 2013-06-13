@@ -4,6 +4,8 @@
 #include "../include/kasm.h"
 #include "../include/stdio.h"
 #include "../include/devicetable.h"
+#define CMOS_ADDRESS  	0x70
+#define CMOS_DATA		0x71
 
 /***************************************************************
 *setup_IDT_entry
@@ -139,4 +141,15 @@ unsigned char * read_temp(){
 	}
 	ansTemp[4] = 0;
 	return ansTemp;
+}
+
+void raise_temp() {
+	int i = 0;
+	double a = 64, b = 128;
+	
+	
+	while(i++ < 9999999) {
+		a=b*a*a*b*b*a*b*a*b;
+	}
+	
 }

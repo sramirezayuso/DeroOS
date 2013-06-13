@@ -19,5 +19,7 @@ unsigned char * read_rtc();
 
 unsigned char * read_temp();
 
+void raise_temp();
+
 
 #endif

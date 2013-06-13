@@ -1,4 +1,4 @@
-FLAGS=-c -g -w -m32
+FLAGS=-c -g -w -m32 -fno-stack-protector
 all:
 	nasm -f aout src/libasm.asm -o bin/libasm.o
 	nasm -f aout src/loader.asm -o bin/loader.o

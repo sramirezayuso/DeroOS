@@ -98,8 +98,9 @@ void kmain()
         _mascaraPIC2(0xFF);
 
         _Sti();
-
+		
 		initializeShell();
+		
         while(1)
         {
 

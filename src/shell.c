@@ -28,6 +28,8 @@ void newKey(char c);
 
 void tab();
 
+void blink();
+
 int tickpos;
 
 unsigned char minKeys[] =
@@ -70,7 +72,7 @@ int promptRow, promptCol;
 
 void initializeShell() {
 	int redwht = REDWHT;
-	int whtblk = WHTBLK;
+	int blkwht = BLKWHT;
 	unsigned int i = 0;
 	
 	while(i < (ROWS*COLS*2)) {
@@ -78,7 +80,7 @@ void initializeShell() {
 		if(i <= COLS*2)
 			__write(STDOUT, &redwht, 1);
 		else
-			__write(STDOUT, &whtblk, 1);
+			__write(STDOUT, &blkwht, 1);
 		i++;
 	}
 	
@@ -150,16 +152,24 @@ void printKey(char c) {
 ****************************************************************/
 
 void interpret() {
-	const unsigned char * command = &(screen[promptRow][promptLength + 1]);
-	char * aux, c;
+	const unsigned char * input = &(screen[promptRow][promptLength + 1]);
+	char * aux, * command, c;
 	
-	if(strcmp( (char *) command, "") == 0) {
+	command = "";
+	if(strcmp( (char *) input, command) == 0) {
 		return;
 	}
 	
-	if(strcmp( (char *) command, "clear") == 0) {
+	command = "clear";
+	if(strcmp( (char *) input, command) == 0) {
 		k_clear_screen();
 		curRow--;
+		return;
+	}
+	
+	command = "blink";
+	if(strcmp( (char *) input, command) == 0) {
+		blink();
 		return;
 	}
 	
@@ -167,12 +177,15 @@ void interpret() {
 	curCol = 0;
 	if(curRow == ROWS)
 		promptRow = ROWS - 2;
-	if(strcmp( (char *) command, "help") == 0) {
+	command = "help";
+	if(strcmp( (char *) input, command) == 0) {
 		moveUp();
 		printf("clear - Clears the screen.\n");
 		printf("lspci - Shows the devices connected to the PCI buses.\n");
 		printf("hour - Exhibits the current time.\n");
 		printf("cputemp - Displays the cpu temperature.\n");
+		printf("raisetemp - Raises the cpu temperature.\n");
+		printf("blink - Changes the back of the screen and makes it blink.\n");
 		printf("putc [param] - Acts as the putc function.\n");
 		printf("getc [param] - Acts as the getc function.\n");
 		printf("printf [param] - Acts as the printf function.\n");
@@ -181,73 +194,88 @@ void interpret() {
 		return;
 	}
 	
-	if(strcmp( (char *) command, "lspci") == 0) {
+	command = "lspci";
+	if(strcmp( (char *) input, command) == 0) {
 		moveUp();
 		lspci();
 		return;
 	}
 	
-	if(strcmp( (char *) command, "hour") == 0) {
+	command = "hour";
+	if(strcmp( (char *) input, command) == 0) {
 		moveUp();
 		printf("The hour is %s", read_rtc());
 		return;
 	}
 	
-	if(strcmp( (char *) command, "cputemp") == 0) {
+	command = "cputemp";
+	if(strcmp( (char *) input, command) == 0) {
 		moveUp();
 		printf("The temperature is %s", read_temp());
 		return;
 	}
+	
+	command = "raisetemp";
+	if(strcmp( (char *) input, command) == 0) {
+		raise_temp();
+		return;
+	}
 
-	aux = strstarts( (char *) command, "getc ");
+	command = "getc ";
+	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
 		moveUp();
-		promptCol = promptLength + 6;
+		promptCol = promptLength + strlen(command) + 1;
 		c = getc();
 		putc(c);
 		return;
 	}
 	
-	aux = strstarts( (char *) command, "putc ");
+	command = "putc ";
+	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
 		moveUp();
-		putc(screen[promptRow][promptLength + 6]);
+		putc(screen[promptRow][promptLength + strlen(command) + 1]);
 		return;
 	}
 	
-	aux = strstarts( (char *) command, "printf ");
+	command = "printf ";
+	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
 		moveUp();
-		printf(&(screen[promptRow][promptLength + 8]));
+		printf(&(screen[promptRow][promptLength + strlen(command) + 1]));
 		return;
 	}
 	
-	aux = strstarts( (char *) command, "scanf -d ");
+	command = "scanf -d ";
+	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
 		moveUp();
 		int d;
-		promptCol = promptLength + 10;
+		promptCol = promptLength + strlen(command) + 1;
 		scanf("%d",&d);
 		printf("%d",d);
 		return;
 	}
 	
-	aux = strstarts( (char *) command, "scanf -c ");
+	command = "scanf -c ";
+	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
 		moveUp();
 		char c;
-		promptCol = promptLength + 10;
+		promptCol = promptLength + strlen(command) + 1;
 		scanf("%c",&c);
 		printf("%c",c);
 		return;
 	}
 	
-	aux = strstarts( (char *) command, "scanf -s ");
+	command = "scanf -s ";
+	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
 		moveUp();
-		char s;
-		promptCol = promptLength + 10;
-		scanf("%s",&s);
+		char * s;
+		promptCol = promptLength + strlen(command) + 1;
+		scanf("%s", s);
 		printf("%s",s);
 		return;
 	}
@@ -463,4 +491,18 @@ char readFromShell() {
 	}
 	
 	return ret;
+}
+
+int prev=TRUE;
+void blink() {
+	int back = prev==TRUE?WHTBLK:BLKWHT;
+	unsigned int i = COLS*2 + 1;
+	
+	while(i < (ROWS*COLS*2)) {
+		tickpos = i++;
+		__write(STDOUT, &back, 1);
+	}
+	
+	prev = prev==TRUE?FALSE:TRUE;
+	flush();
 }

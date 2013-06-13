@@ -7,7 +7,8 @@
 #ifndef _shell_
 #define _shell_
 
-#define WHTBLK 	0xF0 // Atributo de video. Fondo Blanco - Letras Negras
+#define BLKWHT 	0x0F // Atributo de video. Fondo Negro - Letras Blancas
+#define WHTBLK 	0xF0 // Atributo de video. Fondo Blancas - Letras Negro
 #define REDWHT 	0x4F // Atributo de video. Fondo Rojo - Letras Blancas
 
 #define ROWS		25
