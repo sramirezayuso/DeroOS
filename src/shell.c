@@ -154,7 +154,7 @@ void printKey(char c) {
 void interpret() {
 	const unsigned char * input = &(screen[promptRow][promptLength + 1]);
 	char * aux, * command, c;
-	
+
 	command = "";
 	if(strcmp( (char *) input, command) == 0) {
 		return;
@@ -175,8 +175,6 @@ void interpret() {
 	
 	curRow++;
 	curCol = 0;
-	if(curRow == ROWS)
-		promptRow = ROWS - 2;
 	command = "help";
 	if(strcmp( (char *) input, command) == 0) {
 		moveUp();
@@ -243,7 +241,10 @@ void interpret() {
 	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
 		moveUp();
-		printf(&(screen[promptRow][promptLength + strlen(command) + 1]));
+		char s[BUFF];
+		promptCol = promptLength + strlen(command) + 1;
+		scanf("%s", s);
+		printf("%s",s);
 		return;
 	}
 	
@@ -349,7 +350,7 @@ void moveUp() {
 	
 	if(curRow > ROWS-1){
 		curRow = ROWS-1;
-
+		promptRow--;
 		for(i = 1; i < ROWS-1; i++) {
 			for(j = 0; j < COLS; j++){
 				screen[i][j] = screen[i+1][j];
@@ -482,12 +483,10 @@ void putOnTopRight(unsigned char * value1, unsigned char * value2) {
 
 char readFromShell() {
 	char ret = screen[promptRow][promptCol];
-	
+
 	if(++promptCol == COLS) {
 		promptCol = 0;
 		promptRow++;
-		if(++promptRow == ROWS);
-			promptRow--;
 	}
 	
 	return ret;
