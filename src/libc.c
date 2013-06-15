@@ -48,7 +48,11 @@ void lspci()
 			            answer = "Unknown Device";
 			        }
 			    }
-			    printf("%s\n", answer);
+			    printf("%s", answer);
+			    if(strcmp(answer, "Unknown Device") == 0){
+                    printf(" VendorID: %d, DeviceID: %d", vendor, device);
+			    }
+                printf("\n");
 			}
 		}
 	}
@@ -122,10 +126,10 @@ unsigned char * read_rtc() {
 unsigned char ansTemp[5];
 unsigned char * read_temp(){
     dword maxTemp = _read_msr(MSR_IA32_TEMPERATURE_TARGET);
-    maxTemp = (maxTemp & 0x0007F000) >> 16;
+    maxTemp = (maxTemp & 0x0FF);
 	maxTemp = maxTemp==0?85:maxTemp;
     dword temp = _read_msr(MSR_IA32_THERM_STATUS);
-    temp = (temp & 0x0007F000) >> 16;
+    temp = (temp & 0x07F);
     temp = maxTemp - temp;
 
 	if(temp < 0) {
@@ -146,10 +150,10 @@ unsigned char * read_temp(){
 void raise_temp() {
 	int i = 0;
 	double a = 64, b = 128;
-	
-	
+
+
 	while(i++ < 9999999) {
 		a=b*a*a*b*b*a*b*a*b;
 	}
-	
+
 }

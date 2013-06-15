@@ -168,6 +168,7 @@ _read_msr:
 		push 	ecx
 		mov 	ecx, [ebp+8]
 		rdmsr
+		ror 	eax, 16
 		pop		ecx
 		mov     esp, ebp
 		pop     ebp

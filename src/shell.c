@@ -33,27 +33,50 @@ void blink();
 int tickpos;
 
 unsigned char minKeys[] =
-{  0,  ESC, '1', '2', '3', '4', '5', '6', '7', '8', 
- '9', '0', '-', '=','\b','\t', 'q', 'w', 'e', 'r', 
+{  0,  ESC, '1', '2', '3', '4', '5', '6', '7', '8',
+ '9', '0', '-', '=','\b','\t', 'q', 'w', 'e', 'r',
  't', 'y', 'u', 'i', 'o', 'p', '[', ']', ENTER,   0,
  'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
 '\'', '`',   MAY,'\\', 'z', 'x', 'c', 'v', 'b', 'n',
  'm', ',', '.', '/',   MAY, '*',   0, ' ',   CAPS,	0,
   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
   0,   0, 	UP,   0,  '-', LEFT,  0, RIGHT, '+', 0,
- DOWN,   0,    0,   0,   0,   0,   0,   0,   0, 
+ DOWN,   0,    0,   0,   0,   0,   0,   0,   0,
 };
 
 unsigned char mayKeys[] =
-{  0,  ESC, '1', '2', '3', '4', '5', '6', '7', '8', 
- '9', '0', '-', '=','\b','\t', 'Q', 'W', 'E', 'R', 
+{  0,  ESC, '1', '2', '3', '4', '5', '6', '7', '8',
+ '9', '0', '-', '=','\b','\t', 'Q', 'W', 'E', 'R',
  'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', ENTER,   0,
  'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';',
 '\'', '`',   MIN,'\\', 'Z', 'X', 'C', 'V', 'B', 'N',
  'M', ',', '.', '/',   MIN, '*',   0, ' ',   CAPS,	0,
   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
   0,   0, 	UP,   0,  '-', LEFT,  0, RIGHT, '+', 0,
- DOWN,   0,    0,   0,   0,   0,   0,   0,   0, 
+ DOWN,   0,    0,   0,   0,   0,   0,   0,   0,
+};
+
+unsigned char shiftMinKeys[] =
+{  0,  ESC, '!', '@', '#', '$', '%', '^', '&', '*',
+ '(', ')', '_', '+','\b','\t', 'Q', 'W', 'E', 'R',
+ 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', ENTER,   0,
+ 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':',
+'|', '"',   MIN,'\\', 'Z', 'X', 'C', 'V', 'B', 'N',
+ 'M', '<', '>', '?',   MIN, '*',   0, ' ',   CAPS,	0,
+  0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
+  0,   0, 	UP,   0,  '-', LEFT,  0, RIGHT, '+', 0,
+ DOWN,   0,    0,   0,   0,   0,   0,   0,   0,
+};
+unsigned char shiftMayKeys[] =
+{  0,  ESC, '!', '@', '#', '$', '%', '^', '&', '*',
+ '(', ')', '_', '+','\b','\t', 'q', 'w', 'e', 'r',
+ 't', 'y', 'u', 'i', 'o', 'p', '{', '}', ENTER,   0,
+ 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ':',
+'|', '"',  MAY,'\\', 'z', 'x', 'c', 'v', 'b', 'n',
+ 'm', '<', '>', '?',   MAY, '*',   0, ' ',   CAPS,	0,
+  0,   0,    0,   0,   0,   0,   0,   0,   0,   0,
+  0,   0, 	UP,   0,  '-', LEFT,  0, RIGHT, '+', 0,
+ DOWN,   0,    0,   0,   0,   0,   0,   0,   0,
 };
 
 unsigned char * keyboard = minKeys;
@@ -74,7 +97,7 @@ void initializeShell() {
 	int redwht = REDWHT;
 	int blkwht = BLKWHT;
 	unsigned int i = 0;
-	
+
 	while(i < (ROWS*COLS*2)) {
 		tickpos = i;
 		if(i <= COLS*2)
@@ -83,7 +106,7 @@ void initializeShell() {
 			__write(STDOUT, &blkwht, 1);
 		i++;
 	}
-	
+
 	printPrompt();
 	update_cursor(curRow, ++curCol);
 	flush();
@@ -112,24 +135,30 @@ void flush() {
 
 void decodeScancode(int scancode) {
 	char c;
-	
+
 	if(scancode <= 80) {
 		if(defineScancode(scancode))
 			return;
-			
+
 		c = keyboard[scancode];
-		
+
 		if(c != 0)
 			printKey(c);
+    } else if (scancode == 170 || scancode == 182){
+        if (keyboard == shiftMinKeys)
+            keyboard = minKeys;
+        else if (keyboard == shiftMayKeys)
+            keyboard = mayKeys;
+        return TRUE;
     }
 }
 
 
 void printKey(char c) {
 	int i;
-		
+
 	switch(c) {
-	
+
 		case '\n':
 					newLine();
 					break;
@@ -148,7 +177,7 @@ void printKey(char c) {
 /***************************************************************
 *interpret
 *
-* Interpreta un comando ingresado 
+* Interpreta un comando ingresado
 ****************************************************************/
 
 void interpret() {
@@ -159,20 +188,20 @@ void interpret() {
 	if(strcmp( (char *) input, command) == 0) {
 		return;
 	}
-	
+
 	command = "clear";
 	if(strcmp( (char *) input, command) == 0) {
 		k_clear_screen();
 		curRow--;
 		return;
 	}
-	
+
 	command = "blink";
 	if(strcmp( (char *) input, command) == 0) {
 		blink();
 		return;
 	}
-	
+
 	curRow++;
 	curCol = 0;
 	command = "help";
@@ -191,28 +220,28 @@ void interpret() {
 		printf("help - It's what you are reading.");
 		return;
 	}
-	
+
 	command = "lspci";
 	if(strcmp( (char *) input, command) == 0) {
 		moveUp();
 		lspci();
 		return;
 	}
-	
+
 	command = "hour";
 	if(strcmp( (char *) input, command) == 0) {
 		moveUp();
 		printf("The hour is %s", read_rtc());
 		return;
 	}
-	
+
 	command = "cputemp";
 	if(strcmp( (char *) input, command) == 0) {
 		moveUp();
 		printf("The temperature is %s", read_temp());
 		return;
 	}
-	
+
 	command = "raisetemp";
 	if(strcmp( (char *) input, command) == 0) {
 		raise_temp();
@@ -228,7 +257,7 @@ void interpret() {
 		putc(c);
 		return;
 	}
-	
+
 	command = "putc ";
 	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
@@ -236,7 +265,7 @@ void interpret() {
 		putc(screen[promptRow][promptLength + strlen(command) + 1]);
 		return;
 	}
-	
+
 	command = "printf ";
 	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
@@ -247,7 +276,7 @@ void interpret() {
 		printf("%s",s);
 		return;
 	}
-	
+
 	command = "scanf -d ";
 	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
@@ -258,7 +287,7 @@ void interpret() {
 		printf("%d",d);
 		return;
 	}
-	
+
 	command = "scanf -c ";
 	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
@@ -269,7 +298,7 @@ void interpret() {
 		printf("%c",c);
 		return;
 	}
-	
+
 	command = "scanf -s ";
 	aux = strstarts( (char *) input, command);
 	if(aux != NULL) {
@@ -280,10 +309,10 @@ void interpret() {
 		printf("%s",s);
 		return;
 	}
-	
+
 	moveUp();
 	printf("Command not found");
-	
+
 }
 
 /***************************************************************
@@ -292,7 +321,7 @@ void interpret() {
 * Imprime el prompt
 ****************************************************************/
 void printPrompt() {
-	const char * prompt = "DERO9000$>"; 
+	const char * prompt = "DERO9000$>";
 	int i = 0;
 
 	promptLength = strlen(prompt);
@@ -309,16 +338,22 @@ void printPrompt() {
 ****************************************************************/
 int defineScancode(int scancode) {
 	char c = keyboard[scancode];
-	
+
 	switch(c) {
-	
+
 		case UP:
 				return TRUE;
 		case DOWN:
 				return TRUE;
-		case LEFT:	
+		case LEFT:
 				return TRUE;
 		case RIGHT:
+				return TRUE;
+        case MIN:
+                if(keyboard == mayKeys)
+					keyboard = shiftMayKeys;
+                else if(keyboard == minKeys)
+					keyboard = shiftMinKeys;
 				return TRUE;
 		case CAPS:
 				if(keyboard == minKeys)
@@ -347,7 +382,7 @@ int defineScancode(int scancode) {
 ****************************************************************/
 void moveUp() {
 	int i, j;
-	
+
 	if(curRow > ROWS-1){
 		curRow = ROWS-1;
 		promptRow--;
@@ -356,7 +391,7 @@ void moveUp() {
 				screen[i][j] = screen[i+1][j];
 			}
 		}
-		
+
 		for(j = 0; j < COLS; j++){
 			screen[i][j] = 0;
 		}
@@ -392,14 +427,14 @@ void k_clear_screen() {
 
 void update_cursor(int row, int col)
  {
-    unsigned short position = row * COLS + col; 
+    unsigned short position = row * COLS + col;
 
 	_outb( (unsigned char *) 0x03D4, 0x0E);
 	_outb( (unsigned char *) 0x03D5, position >> 8);
 	_outb( (unsigned char *) 0x03D4, 0x0F);
 	_outb( (unsigned char *) 0x03D5, position);
  }
- 
+
 /***************************************************************
 *newLine
 *
@@ -433,21 +468,21 @@ void backspace() {
 		curCol = COLS-1;
 		curRow--;
 	}
-	
+
 	if(screen[curRow][curCol] != 0) {
 		screen[curRow][curCol] = 0;
 	} else {
 		curCol = auxCol;
 		curRow = auxRow;
 	}
-	
+
 	flush();
 	update_cursor(curRow, curCol);
 }
 
 void tab() {
 	int i;
-	
+
 	for(i = 0; i < 8 ; i++)
 		newKey(' ');
 
@@ -466,14 +501,14 @@ void newKey(char c) {
 
 void putOnTopRight(unsigned char * value1, unsigned char * value2) {
 	int i, aRow = 0, aCol = COLS-16;
-	
+
 	for(i = 0; value1[i] != 0; i++) {
 		screen[aRow][aCol++] = value1[i];
 	}
 
-	screen[aRow][aCol++]= ' '; 
-	screen[aRow][aCol++]= '|'; 
-	screen[aRow][aCol++]= ' '; 
+	screen[aRow][aCol++]= ' ';
+	screen[aRow][aCol++]= '|';
+	screen[aRow][aCol++]= ' ';
 
 	for(i = 0; value2[i] != 0; i++) {
 		screen[aRow][aCol++] = value2[i];
@@ -488,7 +523,7 @@ char readFromShell() {
 		promptCol = 0;
 		promptRow++;
 	}
-	
+
 	return ret;
 }
 
@@ -496,12 +531,12 @@ int prev=TRUE;
 void blink() {
 	int back = prev==TRUE?WHTBLK:BLKWHT;
 	unsigned int i = COLS*2 + 1;
-	
+
 	while(i < (ROWS*COLS*2)) {
 		tickpos = i++;
 		__write(STDOUT, &back, 1);
 	}
-	
+
 	prev = prev==TRUE?FALSE:TRUE;
 	flush();
 }
