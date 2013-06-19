@@ -132,19 +132,25 @@ unsigned char * read_temp(){
     temp = (temp & 0x07F);
     temp = maxTemp - temp;
 
-	if(temp < 0) {
-		ansTemp[0] = 'E';
-		ansTemp[1] = 'R';
-		ansTemp[2] = 'R';
-		ansTemp[3] = ' ';
-	} else {
-		ansTemp[0] = ((temp/10) + '0' )=='0'?' ':(temp/10) + '0';
-		ansTemp[1] = (temp%10) + '0';
-		ansTemp[2] = ' ';
-		ansTemp[3] = 'C';
-	}
+    ansTemp[0] = ((temp/10) + '0' )=='0'?' ':(temp/10) + '0';
+    ansTemp[1] = (temp%10) + '0';
+    ansTemp[2] = ' ';
+    ansTemp[3] = 'C';
 	ansTemp[4] = 0;
 	return ansTemp;
+}
+
+unsigned char relTemp[5];
+unsigned char * rel_temp(){
+    dword temp = _read_msr(MSR_IA32_THERM_STATUS);
+    temp = (temp & 0x07F);
+
+    relTemp[0] = ((temp/10) + '0' )=='0'?' ':(temp/10) + '0';
+    relTemp[1] = (temp%10) + '0';
+    relTemp[2] = ' ';
+    relTemp[3] = 'C';
+	relTemp[4] = 0;
+	return relTemp;
 }
 
 void raise_temp() {
@@ -153,6 +159,7 @@ void raise_temp() {
 
 
 	while(i++ < 9999999) {
+	    printf("CPU temp: %s\n", read_temp());
 		a=b*a*a*b*b*a*b*a*b;
 	}
 

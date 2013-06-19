@@ -238,7 +238,7 @@ void interpret() {
 	command = "cputemp";
 	if(strcmp( (char *) input, command) == 0) {
 		moveUp();
-		printf("The temperature is %s", read_temp());
+		printf("The temperature is %s, %s under max", read_temp(), rel_temp());
 		return;
 	}
 
